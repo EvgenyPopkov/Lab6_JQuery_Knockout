@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Lab JQuery Knockout</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
+    <script src="node_modules\knockout\build\output\knockout-latest.js"></script>
+    <script src="node_modules\jquery\dist\jquery.min.js"></script>
+    <style type="text/css">
+        body {
+            font-size: 26px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+
+        <!-- JQuery -->
+        <section class="col-lg-6 col-md-6 text-center">
+            <p class="text-info">JQuery</p>
+            <hr/>
+            <div class="row">
+                <div class="col-lg-2">
+                    <p class=" text-info">Время</p>
+                </div>
+                <div class="col-lg-3">
+                    <p id="timeJQ" class="bg-info"></p>
+                </div>
+                <div class="col-lg-3">
+                    <button id="btnJQ" type="button" class="btn btn-info btn-md">Отправить запрос</button>
+                </div>
+                <div class="col-lg-4">
+                    <p id="queryJQ" class="bg-info">Результат</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Knockout -->
+        <section class="col-lg-6 col-md-6 text-center">
+            <p class="text-danger">Knockout</p>
+            <hr/>
+            <div class="row">
+                <div class="col-lg-2">
+                    <p class=" text-danger">Время</p>
+                </div>
+                <div class="col-lg-3">
+                    <p class="bg-danger" data-bind="text:timeKO"></p>
+                </div>
+                <div class="col-lg-3">
+                    <button data-bind="click: btnKO" type="button" class="btn btn-danger btn-md">Отправить запрос</button>
+                </div>
+                <div class="col-lg-4">
+                    <p data-bind="text: queryKO" class="bg-danger"></p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script type="text/javascript">
+        function getTime() {
+            var date = new Date();
+            return date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+        }
+
+        //JQuery
+        setInterval(function() {
+            $('#timeJQ').text(getTime())
+        }, 1000);
+
+        $('#btnJQ').click(function() {
+            $('#queryJQ').text("Ожидание...");
+            var d = $.Deferred();
+            setTimeout(function() {
+                d.resolve(Math.floor(Math.random() * 100));
+            }, 3000)
+
+            var promise = d.promise();
+            promise.done(function(result) {
+                $('#queryJQ').text(result);
+            });
+        });
+
+        //Knockout
+        var ViewModel = function() {
+            this.timeKO = ko.observable();
+            this.queryKO = ko.observable("Результат");
+        };
+        var viewModel = new ViewModel();
+
+        viewModel.btnKO = function() {
+            viewModel.queryKO("Ожидание...");
+            var d = $.Deferred();
+            setTimeout(function() {
+                d.resolve(Math.floor(Math.random() * 100));
+            }, 3000)
+
+            var promise = d.promise();
+            promise.done(function(result) {
+                viewModel.queryKO(result);
+            });
+        }
+
+        ko.applyBindings(viewModel);
+
+        setInterval(function() {
+            viewModel.timeKO(getTime());
+        }, 1000);
+    </script>
+</body>
+
+</html>
